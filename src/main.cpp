@@ -31,7 +31,7 @@ public:
 
 	void update()
 	{
-		if (millis() - lastRefresh < 2)			return;
+		if (millis() - lastRefresh < 2)	return;
 
 		lastRefresh = millis();
 
@@ -146,9 +146,23 @@ void setup()
 	display.begin();
 }
 
+int value = 1000;
+uint32_t lastUpdate = 0;
+
 void loop()
 {
-	display.show(millis() / 1000);
+
+	if (millis() - lastUpdate >= value)
+	{
+		lastUpdate = millis();
+
+		if (value > -99) value--;
+	}
+
+	display.show(value);
 
 	display.update();
+
+	// display.show(-99 + (millis() / (1000)));
+
 }
