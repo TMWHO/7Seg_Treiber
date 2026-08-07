@@ -31,9 +31,8 @@ public:
 
 	void update()
 	{
-		if (millis() - lastRefresh < 2)	return;
-
-		lastRefresh = millis();
+		if (micros() - lastRefresh < refreshRateMicro)	return;
+		lastRefresh += refreshRateMicro;
 
 		disableDigits();
 
@@ -97,6 +96,7 @@ private:
 
 	byte currentDigit = 0;
 
+	uint32_t refreshRateMicro = 1000;	// 1000 = > 1kHz
 	unsigned long lastRefresh = 0;
 
 	// 0b DP,G,F,E,D,C,B,A
@@ -125,7 +125,7 @@ private:
 
 	inline void writeSegments(byte pattern)
 	{
-		for (byte i = 0; i < 7; i++) { digitalWrite(pinSegment[i], pattern & (1 << i)); }
+		for (byte i = 0; i < 7; i++)  	digitalWrite(pinSegment[i], pattern & (1 << i));
 		digitalWrite(pinDp, pattern & 0b10000000);
 	}
 };
@@ -146,17 +146,17 @@ void setup()
 	display.begin();
 }
 
-int value = 1000;
+int value = -99;
 uint32_t lastUpdate = 0;
 
 void loop()
 {
 
-	if (millis() - lastUpdate >= value)
+	if (millis() - lastUpdate >= 10)
 	{
 		lastUpdate = millis();
 
-		if (value > -99) value--;
+		if (value < 1000) value++;
 	}
 
 	display.show(value);
