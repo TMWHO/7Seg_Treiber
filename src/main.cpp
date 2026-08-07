@@ -67,7 +67,7 @@ public:
 			values[1] = number / 10;
 			values[2] = number % 10;
 
-			if (number < 10)	values[1] = 10;
+			if (number < 10)	{values[0] = 10; values[1] = 11;}	//minus an 2te stelle
 		}
 		else
 		{
@@ -80,10 +80,7 @@ public:
 		}
 	}
 
-	void setDP(byte pos, bool state)
-	{
-		if (pos < 3) dpState[pos] = state;
-	}
+	void setDP(byte pos, bool state) { if (pos < 3) dpState[pos] = state; }
 
 private:
 	byte pinSegment[7];
@@ -97,7 +94,7 @@ private:
 	byte currentDigit = 0;
 
 	uint32_t refreshRateMicro = 1000;	// 1000 = > 1kHz
-	unsigned long lastRefresh = 0;
+	uint32_t lastRefresh = 0;
 
 	// 0b DP,G,F,E,D,C,B,A
 	const byte font[12] =
@@ -125,7 +122,8 @@ private:
 
 	inline void writeSegments(byte pattern)
 	{
-		for (byte i = 0; i < 7; i++)  	digitalWrite(pinSegment[i], pattern & (1 << i));
+		for (byte i = 0; i < 7; i++)
+			digitalWrite(pinSegment[i], pattern & (1 << i));
 		digitalWrite(pinDp, pattern & 0b10000000);
 	}
 };
@@ -152,7 +150,7 @@ uint32_t lastUpdate = 0;
 void loop()
 {
 
-	if (millis() - lastUpdate >= 10)
+	if (millis() - lastUpdate >= 25)
 	{
 		lastUpdate = millis();
 
