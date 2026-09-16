@@ -139,26 +139,98 @@ Display3Digit display(pinSeg, pinDig, pinDp);
 void setup()
 {
 	Serial.begin(115200);
-	Serial1.begin(500000);
+	Serial1.begin(115200);
 	DBG("Display gestartet");
 
 	display.begin();
 }
 
+// int value = -99;
+// uint32_t lastUpdate = 0;
 
-int dbValue = 0;
+constexpr uint8_t START_BYTE = 0xAA;
+int dbValue = 123;
 
-int value = -99;
-uint32_t lastUpdate = 0;
+void receiveDB()
+{
+    static uint8_t state = 0;
+    static uint8_t lowByte = 0;
+    static uint8_t highByte = 0;
+
+    while (Serial1.available())
+    {
+        uint8_t data = Serial1.read();
+
+        switch (state)
+        {
+            // Auf Startbyte warten
+            case 0:
+
+                if (data == START_BYTE)
+                {
+                    state = 1;
+                }
+
+                break;
+
+
+            // Low-Byte
+            case 1:
+
+                lowByte = data;
+                state = 2;
+
+                break;
+
+
+            // High-Byte
+            case 2:
+
+                highByte = data;
+                state = 3;
+
+                break;
+
+
+            // Prüfsumme
+            case 3:
+
+                if (data == (lowByte ^ highByte))
+                {
+                    int16_t value =
+                        (int16_t)(
+                            (uint16_t)lowByte |
+                            ((uint16_t)highByte << 8)
+                        );
+
+                    dbValue = value;
+                }
+
+                // Egal ob gültig oder nicht:
+                // wieder auf Startbyte warten
+                state = 0;
+
+                break;
+        }
+    }
+}
 
 void loop()
 {
 
 	// Rx
-	if (Serial1.available() >= sizeof(dbValue))
-	{
-		Serial1.readBytes((uint8_t*)&dbValue, sizeof(dbValue));
-	}
+	// if (Serial1.available() >= sizeof(dbValue))
+	// {
+	// 	Serial1.readBytes((uint8_t*)&dbValue, sizeof(dbValue));
+	// }
+
+	// if (Serial1.available())
+	// {
+	// 	dbValue = Serial1.parseInt();
+	// }
+
+
+	receiveDB();
 
 	// dbValue an deine 7-Segment-Anzeige übergeben
 
@@ -173,6 +245,9 @@ void loop()
 	// display.show(value);
 
 	display.show(dbValue);
+
+
+	DBG(dbValue);
 
 
 	display.update();
