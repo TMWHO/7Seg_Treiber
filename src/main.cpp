@@ -67,7 +67,7 @@ public:
 			values[1] = number / 10;
 			values[2] = number % 10;
 
-			if (number < 10)	{values[0] = 10; values[1] = 11;}	//minus an 2te stelle
+			if (number < 10) { values[0] = 10; values[1] = 11; }	//minus an 2te stelle
 		}
 		else
 		{
@@ -139,10 +139,14 @@ Display3Digit display(pinSeg, pinDig, pinDp);
 void setup()
 {
 	Serial.begin(115200);
+	Serial1.begin(500000);
 	DBG("Display gestartet");
 
 	display.begin();
 }
+
+
+int dbValue = 0;
 
 int value = -99;
 uint32_t lastUpdate = 0;
@@ -150,14 +154,26 @@ uint32_t lastUpdate = 0;
 void loop()
 {
 
-	if (millis() - lastUpdate >= 25)
+	// Rx
+	if (Serial1.available() >= sizeof(dbValue))
 	{
-		lastUpdate = millis();
-
-		if (value < 1000) value++;
+		Serial1.readBytes((uint8_t*)&dbValue, sizeof(dbValue));
 	}
 
-	display.show(value);
+	// dbValue an deine 7-Segment-Anzeige übergeben
+
+	//// 7segment stuff
+
+	// if (millis() - lastUpdate >= 25)
+	// {
+	// 	lastUpdate = millis();
+
+	// 	if (value < 1000) value++;
+	// }
+	// display.show(value);
+
+	display.show(dbValue);
+
 
 	display.update();
 
