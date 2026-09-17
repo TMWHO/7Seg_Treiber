@@ -164,52 +164,29 @@ void receiveDB()
 		switch (state)
 		{
 			// Auf Startbyte warten
-		case 0:
-
-			if (data == START_BYTE)
-			{
-				state = 1;
-			}
-
-			break;
-
+		case 0:	if (data == START_BYTE) { state = 1; }		break;
 
 			// Low-Byte
 		case 1:
-
 			lowByte = data;
 			state = 2;
-
 			break;
-
 
 			// High-Byte
 		case 2:
-
 			highByte = data;
 			state = 3;
-
 			break;
-
 
 			// Prüfsumme
 		case 3:
-
 			if (data == (lowByte ^ highByte))
 			{
-				int16_t value =
-					(int16_t)(
-						(uint16_t)lowByte |
-						((uint16_t)highByte << 8)
-						);
-
+				int16_t value = (int16_t)((uint16_t)lowByte | ((uint16_t)highByte << 8));
 				dbValue = value;
 			}
-
-			// Egal ob gültig oder nicht:
-			// wieder auf Startbyte warten
+			// Egal ob gültig oder nicht: wieder auf Startbyte warten
 			state = 0;
-
 			break;
 		}
 	}
@@ -217,19 +194,6 @@ void receiveDB()
 
 void loop()
 {
-
-	// Rx
-	// if (Serial1.available() >= sizeof(dbValue))
-	// {
-	// 	Serial1.readBytes((uint8_t*)&dbValue, sizeof(dbValue));
-	// }
-
-	// if (Serial1.available())
-	// {
-	// 	dbValue = Serial1.parseInt();
-	// }
-
-
 
 	// dbValue an deine 7-Segment-Anzeige übergeben
 
@@ -244,6 +208,8 @@ void loop()
 		// display.show(value);
 
 	receiveDB();
+
+	// hier taster rein...wenn (dbValue == 0) => disableDigits() sollte passen... 
 
 	DBG(dbValue);
 
