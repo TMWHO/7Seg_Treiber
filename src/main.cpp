@@ -153,66 +153,66 @@ int dbValue = 123;
 
 void receiveDB()
 {
-    static uint8_t state = 0;
-    static uint8_t lowByte = 0;
-    static uint8_t highByte = 0;
+	static uint8_t state = 0;
+	static uint8_t lowByte = 0;
+	static uint8_t highByte = 0;
 
-    while (Serial1.available())
-    {
-        uint8_t data = Serial1.read();
+	while (Serial1.available())
+	{
+		uint8_t data = Serial1.read();
 
-        switch (state)
-        {
-            // Auf Startbyte warten
-            case 0:
+		switch (state)
+		{
+			// Auf Startbyte warten
+		case 0:
 
-                if (data == START_BYTE)
-                {
-                    state = 1;
-                }
+			if (data == START_BYTE)
+			{
+				state = 1;
+			}
 
-                break;
-
-
-            // Low-Byte
-            case 1:
-
-                lowByte = data;
-                state = 2;
-
-                break;
+			break;
 
 
-            // High-Byte
-            case 2:
+			// Low-Byte
+		case 1:
 
-                highByte = data;
-                state = 3;
+			lowByte = data;
+			state = 2;
 
-                break;
+			break;
 
 
-            // Prüfsumme
-            case 3:
+			// High-Byte
+		case 2:
 
-                if (data == (lowByte ^ highByte))
-                {
-                    int16_t value =
-                        (int16_t)(
-                            (uint16_t)lowByte |
-                            ((uint16_t)highByte << 8)
-                        );
+			highByte = data;
+			state = 3;
 
-                    dbValue = value;
-                }
+			break;
 
-                // Egal ob gültig oder nicht:
-                // wieder auf Startbyte warten
-                state = 0;
 
-                break;
-        }
-    }
+			// Prüfsumme
+		case 3:
+
+			if (data == (lowByte ^ highByte))
+			{
+				int16_t value =
+					(int16_t)(
+						(uint16_t)lowByte |
+						((uint16_t)highByte << 8)
+						);
+
+				dbValue = value;
+			}
+
+			// Egal ob gültig oder nicht:
+			// wieder auf Startbyte warten
+			state = 0;
+
+			break;
+		}
+	}
 }
 
 void loop()
@@ -230,7 +230,6 @@ void loop()
 	// }
 
 
-	receiveDB();
 
 	// dbValue an deine 7-Segment-Anzeige übergeben
 
@@ -238,17 +237,17 @@ void loop()
 
 	// if (millis() - lastUpdate >= 25)
 	// {
-	// 	lastUpdate = millis();
+		// 	lastUpdate = millis();
 
-	// 	if (value < 1000) value++;
-	// }
-	// display.show(value);
+		// 	if (value < 1000) value++;
+		// }
+		// display.show(value);
 
-	display.show(dbValue);
-
+	receiveDB();
 
 	DBG(dbValue);
 
+	display.show(dbValue);
 
 	display.update();
 
